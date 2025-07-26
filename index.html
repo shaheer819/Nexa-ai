@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Offline Quiz Bot - Nexa AI</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    .light-mode {
+      background-color: #f5f5f5;
+      color: #000;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      width: 80%;
+      max-width: 400px;
+      margin: 5px;
+      border-radius: 8px;
+      border: none;
+    }
+    button {
+      background-color: #00e676;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #chatBox {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #1f1f1f;
+      border-radius: 10px;
+      text-align: left;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .light-mode #chatBox {
+      background-color: #ffffff;
+    }
+    .user { color: #4fc3f7; text-align: right; }
+    .bot { color: #81c784; text-align: left; }
+    .typing { font-style: italic; color: gray; }
+  </style>
+</head>
+<body>
+
+<h1>🤖 Nexa AI - Offline Quiz Chatbot</h1>
+<p id="greet">Enter your name:</p>
+<input type="text" id="nameInput" placeholder="Your name..." onkeydown="if(event.key==='Enter')startChat()">
+<br>
+<button onclick="startChat()">Start Chat</button>
+<button onclick="toggleMode()">🌙 Toggle Mode</button>
+
+<div id="chatBox" style="display:none;"></div>
+<input type="text" id="userInput" placeholder="Ask a quiz question..." style="display:none;" onkeydown="if(event.key==='Enter')sendMsg()">
+<br>
+<button onclick="sendMsg()" id="sendBtn" style="display:none;">Send</button>
+<button onclick="clearChat()" style="display:none;">Clear</button>
+<p id="scoreDisplay" style="margin-top:10px;"></p>
+
+<script>
+let userName = "";
+let score = 0;
+let total = 0;
+
+let quizData = [
+  { q: "what is the capital of france", a: "Paris" },
+  { q: "who wrote hamlet", a: "William Shakespeare" },
+  { q: "what is 2 + 2", a: "4" },
+  { q: "largest planet", a: "Jupiter" },
+  { q: "capital of pakistan", a: "Islamabad" },
+  { q: "inventor of light bulb", a: "Thomas Edison" },
+  { q: "fastest land animal", a: "Cheetah" },
+  { q: "who discovered gravity", a: "Isaac Newton" },
+  { q: "tallest mountain", a: "Mount Everest" },
+  { q: "first president of usa", a: "George Washington" },
+  { q: "capital of india", a: "New Delhi" },
+  { q: "chemical symbol of gold", a: "Au" },
+  { q: "how many continents", a: "7" },
+  { q: "largest ocean", a: "Pacific Ocean" },
+  { q: "national animal of india", a: "Tiger" },
+  { q: "smallest country", a: "Vatican City" },
+  { q: "fastest bird", a: "Peregrine Falcon" },
+  { q: "which planet is red", a: "Mars" },
+  { q: "largest desert", a: "Sahara" },
+  { q: "deepest ocean", a: "Pacific" }
+  // You can add 200000+ questions here
+];
+
+function startChat() {
+  const input = document.getElementById("nameInput");
+  if (!input.value.trim()) return;
+  userName = input.value.trim();
+  document.getElementById("greet").innerText = `Welcome, ${userName}! Ask any quiz question.`;
+  input.style.display = "none";
+  document.getElementById("chatBox").style.display = "block";
+  document.getElementById("userInput").style.display = "inline";
+  document.getElementById("sendBtn").style.display = "inline";
+  document.querySelector('button[onclick="clearChat()"]').style.display = "inline";
+  updateScore();
+}
+
+function sendMsg() {
+  const input = document.getElementById("userInput");
+  const question = input.value.trim().toLowerCase();
+  if (!question) return;
+  appendMessage(`${userName}: ${question}`, "user");
+  input.value = "";
+  total++;
+
+  const typing = document.createElement("p");
+  typing.className = "typing";
+  typing.innerText = "Nexa is thinking...";
+  document.getElementById("chatBox").appendChild(typing);
+  scrollToBottom();
+
+  setTimeout(() => {
+    typing.remove();
+    const matched = quizData.find(item => question.includes(item.q));
+    if (matched) {
+      score++;
+      appendMessage(`Nexa: ${matched.a}`, "bot");
+    } else {
+      appendMessage("Nexa: 🤔 I don't know the answer to that yet.", "bot");
+    }
+    updateScore();
+  }, 800);
+}
+
+function appendMessage(text, cls) {
+  const p = document.createElement("p");
+  p.className = cls;
+  p.innerText = text;
+  document.getElementById("chatBox").appendChild(p);
+  scrollToBottom();
+}
+
+function clearChat() {
+  document.getElementById("chatBox").innerHTML = "";
+  score = 0;
+  total = 0;
+  updateScore();
+}
+
+function updateScore() {
+  document.getElementById("scoreDisplay").innerText = `Score: ${score}/${total}`;
+}
+
+function scrollToBottom() {
+  const chatBox = document.getElementById("chatBox");
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function toggleMode() {
+  document.body.classList.toggle("light-mode");
+}
+</script>
+</body>
+</html>
